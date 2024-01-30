@@ -9,10 +9,7 @@
     "dev" : "tsc-watch --onSuccess \"node dist/index.js\" ",
     "build": "tsc"
   },
-  "repository": {
-    "type": "git",
-    "url": ""
-  },
+ 
   "keywords": [],
   "author": "",
   "license": "ISC",
