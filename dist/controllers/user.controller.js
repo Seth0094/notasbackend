@@ -23,12 +23,6 @@ function createtoken(user) {
         expiresIn: 604800
     });
 }
-/**
- *
- * Todas estas notas estan escritas en ingles porque se me hace mas facil pensar en ingles cuando estoy programando
- * en caso de que se lo estuviera preguntando o en caso de que este leyendo esto Profe Mario
- * No pongo acentos porque se buguean cuando guardo los archivos
- */
 // Comment this method out once everything is done
 const testerRoute = (req, res) => {
     var _a;
