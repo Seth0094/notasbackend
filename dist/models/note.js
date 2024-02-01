@@ -36,10 +36,6 @@ const noteSchema = new mongoose_1.Schema({
         required: true
     }
 });
-// No middleware for now, maybe later
-// Se esta rompiendo la tecla A de mi teclado :(
-// Toda mi laptop se esta rompiendo :(, yo se que nada
-// es eterno pero esto me pone muy triste
 // Methods
 noteSchema.methods.modifyTitle = function (newTitle) {
     return __awaiter(this, void 0, void 0, function* () {
