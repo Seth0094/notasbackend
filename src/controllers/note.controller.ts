@@ -4,12 +4,7 @@ import User from '../models/user';
 import Folder from '../models/folder'
 import { extractId } from './user.idExtractor';
 
-/**
- * The description essentially needs to be empty with at least one blank character, this will be taken
- * into consideration in the future when making the change description function, so that, if nothing were
- * to be passed then 1 white space would be inserted into the description and it wouldn't be empty
- * therefore, not breaking the Schema designed in the models
- */
+
 
 // CREATE NOTE
 /**

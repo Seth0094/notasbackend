@@ -40,10 +40,7 @@ const noteSchema = new Schema({
   }
 })
 
-// No middleware for now, maybe later
-// Se esta rompiendo la tecla A de mi teclado :(
-// Toda mi laptop se esta rompiendo :(, yo se que nada
-// es eterno pero esto me pone muy triste
+
 
 // Methods
 noteSchema.methods.modifyTitle = async function(newTitle: string): Promise<string>{
