@@ -37,6 +37,7 @@ router.post('/createnote',passport.authenticate('jwt', {session: false}), create
 // Were get requests but had to be changed at the last hour >:(
 router.post('/getfoldernotes',passport.authenticate('jwt', {session: false}), getFolderNotes);
 router.post('/getnofoldernotes',passport.authenticate('jwt', {session: false}), getNoFolderNotes);
+router.get('/getnofoldernotes', passport.authenticate('jwt', {session: false}), getNoFolderNotes);
 
 router.delete('/deletenoteid',passport.authenticate('jwt', {session: false}), deleteNoteById);
 router.delete('/deletefoldernotes',passport.authenticate('jwt', {session: false}), deleteFolderNotes);
