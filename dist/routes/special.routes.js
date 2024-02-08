@@ -15,7 +15,7 @@ router.delete('/deleteuser', passport_1.default.authenticate('jwt', { session: f
 router.put('/modifyusernames', passport_1.default.authenticate('jwt', { session: false }), user_controller_1.modifyUserNames);
 router.put('/modifyuserpassword', passport_1.default.authenticate('jwt', { session: false }), user_controller_1.modifyUserPassword);
 // Were get requests but had to be changed at the last hour >:(
-router.post('/getuserdata', passport_1.default.authenticate('jwt', { session: false }), user_controller_1.getUserData);
+router.get('/getuserdata', passport_1.default.authenticate('jwt', { session: false }), user_controller_1.getUserData);
 // Delete this one once you are done
 router.post('/testerroute', passport_1.default.authenticate('jwt', { session: false }), user_controller_1.testerRoute);
 // Folder Routes
@@ -23,13 +23,16 @@ router.post('/createfolder', passport_1.default.authenticate('jwt', { session: f
 router.put('/modifyfoldername', passport_1.default.authenticate('jwt', { session: false }), folder_controller_1.changeFolderName);
 // Were get requests but had to be changed at the last hour >:(
 router.post('/getuserfolders', passport_1.default.authenticate('jwt', { session: false }), folder_controller_1.getUserFolders);
+router.get('/getuserfolders', passport_1.default.authenticate('jwt', { session: false }), folder_controller_1.getUserFolders);
 router.delete('/deletefolder', passport_1.default.authenticate('jwt', { session: false }), folder_controller_1.deleteFolder);
 router.delete('/deleteallfolders', passport_1.default.authenticate('jwt', { session: false }), folder_controller_1.deleteUserFolders);
 // Note Routes
 router.post('/createnote', passport_1.default.authenticate('jwt', { session: false }), note_controller_1.createNote);
 // Were get requests but had to be changed at the last hour >:(
-router.post('/getfoldernotes', passport_1.default.authenticate('jwt', { session: false }), note_controller_1.getFolderNotes);
+router.post('/getfoldernotes/:folderId', passport_1.default.authenticate('jwt', { session: false }), note_controller_1.getFolderNotes);
+router.get('/getfoldernotes/:folderId', passport_1.default.authenticate('jwt', { session: false }), note_controller_1.getFolderNotes);
 router.post('/getnofoldernotes', passport_1.default.authenticate('jwt', { session: false }), note_controller_1.getNoFolderNotes);
+router.get('/getnofoldernotes', passport_1.default.authenticate('jwt', { session: false }), note_controller_1.getNoFolderNotes);
 router.delete('/deletenoteid', passport_1.default.authenticate('jwt', { session: false }), note_controller_1.deleteNoteById);
 router.delete('/deletefoldernotes', passport_1.default.authenticate('jwt', { session: false }), note_controller_1.deleteFolderNotes);
 router.delete('/deleteusernotes', passport_1.default.authenticate('jwt', { session: false }), note_controller_1.deleteUserNotes);
@@ -37,4 +40,6 @@ router.put('/modifynotetitle', passport_1.default.authenticate('jwt', { session:
 router.put('/modifynotecontent', passport_1.default.authenticate('jwt', { session: false }), note_controller_1.modifyNoteContent);
 router.put('/modifynotefolder', passport_1.default.authenticate('jwt', { session: false }), note_controller_1.modifyNoteFolder);
 router.put('/modifynotecolor', passport_1.default.authenticate('jwt', { session: false }), note_controller_1.modifyNoteColor);
+router.post('/togglefavorite/:noteId', passport_1.default.authenticate('jwt', { session: false }), note_controller_1.toggleFavoriteNote);
+router.get('/getFavoriteNotes', passport_1.default.authenticate('jwt', { session: false }), note_controller_1.getFavoriteNotes);
 exports.default = router;

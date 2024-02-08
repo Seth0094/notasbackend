@@ -134,12 +134,11 @@ exports.deleteUser = deleteUser;
  */
 const modifyUserNames = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _b;
-    // Checks the authorization header and manages if it were to be undefined
     const authorization = (_b = req.headers) === null || _b === void 0 ? void 0 : _b.authorization;
     const userId = (0, user_idExtractor_1.extractId)(authorization);
-    // Makes sure that the user passes the parameters for the modifyNames user method
-    if (!req.body.newName || !req.body.newLastName) {
-        return res.status(400).json({ msg: "Please, pass req.body.newName and req.body.newLastName" });
+    // Asegúrate de que se pasen todos los parámetros necesarios
+    if (!req.body.newName || !req.body.newLastName || !req.body.newUsername || !req.body.newEmail) {
+        return res.status(400).json({ msg: "Please, pass all the required fields: newName, newLastName, newUsername, newEmail" });
     }
     try {
         if (userId) {
@@ -147,23 +146,32 @@ const modifyUserNames = (req, res) => __awaiter(void 0, void 0, void 0, function
             if (!user) {
                 return res.status(400).json({ msg: 'The user does not exist' });
             }
-            // returns user.username
-            const modifiedUser = yield user.modifyNames(req.body.newName, req.body.newLastName);
-            if (modifiedUser) {
-                return res.status(200).json({ msg: `User ${modifiedUser} modified successfully with Name: ${req.body.newName} and Last Name: ${req.body.newLastName}` });
-            }
-            else {
-                return res.status(500).json({ msg: "Something went wrong modifying the user" });
-            }
+            // Actualiza los campos necesarios en el documento del usuario
+            user.name = req.body.newName;
+            user.lastName = req.body.newLastName;
+            user.username = req.body.newUsername;
+            user.email = req.body.newEmail;
+            // Guarda los cambios en la base de datos
+            const updatedUser = yield user.save();
+            // Retorna una respuesta exitosa con la información actualizada del usuario
+            return res.status(200).json({
+                msg: 'User details updated successfully',
+                data: {
+                    name: updatedUser.name,
+                    lastName: updatedUser.lastName,
+                    username: updatedUser.username,
+                    email: updatedUser.email,
+                }
+            });
         }
         else {
-            console.log("Used Id is undefined");
-            return res.status(400).json({ msg: "A problem arised with the JWT" });
+            console.log("User ID is undefined");
+            return res.status(400).json({ msg: "A problem arose with the JWT" });
         }
     }
     catch (error) {
-        console.error('Error decoding JWT:', error);
-        return res.status(500).json({ msg: `Something went wrong ${error}` });
+        console.error('Error updating user details:', error);
+        return res.status(500).json({ msg: `Something went wrong: ${error}` });
     }
 });
 exports.modifyUserNames = modifyUserNames;

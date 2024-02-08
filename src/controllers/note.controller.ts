@@ -6,14 +6,7 @@ import { extractId } from './user.idExtractor';
 
 
 
-// CREATE NOTE
-/**
- * req.body must only have:
- * folder ObjectId (OPTIONAL)
- * noteName (OPTIONAL)
- * noteDescription (OPTIONAL)
- * noteColor (OPTIONAL)
- */
+
 export const createNote = async(req:Request, res:Response) =>{
   const noteName = req.body.noteName || "Nueva Nota";
   const noteDescription = req.body.noteDescription || " ";
@@ -41,6 +34,7 @@ export const createNote = async(req:Request, res:Response) =>{
     }
   }
   
+  const priority = req.body.priority || 'low';
 
   // If req.body.noteFolder is undefined then it won't matter because it is not required.
   const noteData = {
@@ -48,6 +42,7 @@ export const createNote = async(req:Request, res:Response) =>{
     desc: noteDescription,
     noteFolder: req.body.noteFolder,
     color: noteColor,
+    priority,
     noteOwner: userId
   }
 
@@ -58,21 +53,27 @@ export const createNote = async(req:Request, res:Response) =>{
   return res.status(201).json(newNote);
 }
 
-// GET NOTES FROM FOLDER
-export const getFolderNotes = async (req: Request, res: Response)=>{
-  if(!req.body.folderId){
-    return res.status(400).json({msg:"No folder ID was passed"});
+export const getFolderNotes = async (req: Request, res: Response) => {
+  // Usar req.params para obtener el ID de la carpeta de la URL
+  const { folderId } = req.params;
+
+  if (!folderId) {
+    return res.status(400).json({ msg: "No folder ID was passed in the URL parameters." });
   }
 
-  const folder = await Folder.findOne({_id:req.body.folderId})
-  if(!folder){
-    return res.status(400).json({msg: "There's no folder by the sent ID"});
+  try {
+    const folder = await Folder.findById(folderId);
+    if (!folder) {
+      return res.status(404).json({ msg: "Folder not found." });
+    }
+
+    const notes = await Note.find({ noteFolder: folderId });
+    return res.status(200).json(notes);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ msg: "Server error.", error });
   }
-
-  const notes = await Note.find({noteFolder:req.body.folderId});
-
-  return res.status(200).json(notes);
-}
+};
 
 // GET NOTES THAT HAVE NO FOLDER
 export const getNoFolderNotes = async (req: Request, res: Response) =>{
@@ -234,3 +235,46 @@ export const modifyNoteColor = async (req: Request, res: Response) =>{
     return res.status(500).json({msg:"Something went wrong modifying the note color"})
   }
 }
+
+
+export const getFavoriteNotes = async (req: Request, res: Response) => {
+  const userId = extractId(req.headers.authorization);
+
+  if (!userId) {
+    return res.status(401).json({ message: "Usuario no autenticado o token inválido." });
+  }
+
+  try {
+    const notes = await Note.find({ noteOwner: userId, isFavorite: true });
+    res.json(notes);
+  } catch (err) {
+    res.status(500).send('Error al obtener notas favoritas');
+  }
+};
+
+export const toggleFavoriteNote = async (req: Request, res: Response) => {
+  const { noteId } = req.params;
+  const authorization: string | undefined = req.headers?.authorization;
+  const userId = extractId(authorization);
+
+  if (!userId) {
+    res.status(401).send('Authentication failed');
+    return;
+  }
+
+  try {
+    const note = await Note.findOne({ _id: noteId, noteOwner: userId });
+
+    if (note) {
+      note.isFavorite = !note.isFavorite;
+      await note.save();
+      res.json(note);
+    } else {
+      res.status(404).json({ message: 'Nota no encontrada o usuario no autorizado.' });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error del servidor', error });
+  }
+};
+

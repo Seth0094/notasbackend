@@ -1,10 +1,9 @@
 // Son las rutas que aparentemente solo los usuarios autenticados van a poder acceder 
 import {Router} from 'express';
 const router = Router();
-
 import { deleteUser, getUserData, modifyUserNames, modifyUserPassword, testerRoute } from '../controllers/user.controller';
 import {changeFolderName, createFolder, deleteUserFolders, deleteFolder, getUserFolders} from '../controllers/folder.controller';
-import { createNote, deleteFolderNotes, deleteNoteById, deleteUserNotes, getFolderNotes, getNoFolderNotes, modifyNoteColor, modifyNoteContent, modifyNoteFolder, modifyNoteTitle } from '../controllers/note.controller';
+import { createNote, deleteFolderNotes, deleteNoteById, deleteUserNotes, getFolderNotes, getNoFolderNotes, modifyNoteColor, modifyNoteContent, modifyNoteFolder, modifyNoteTitle,getFavoriteNotes,toggleFavoriteNote } from '../controllers/note.controller';
 import passport from 'passport';
 
 // User Routes
@@ -14,7 +13,7 @@ router.put('/modifyusernames', passport.authenticate('jwt', {session: false}), m
 router.put('/modifyuserpassword', passport.authenticate('jwt', {session: false}), modifyUserPassword);
 
 // Were get requests but had to be changed at the last hour >:(
-router.post('/getuserdata', passport.authenticate('jwt', {session: false}), getUserData);
+router.get('/getuserdata', passport.authenticate('jwt', {session: false}), getUserData);
 
 // Delete this one once you are done
 router.post('/testerroute', passport.authenticate('jwt', {session: false}), testerRoute);
@@ -27,6 +26,7 @@ router.put('/modifyfoldername', passport.authenticate('jwt', {session: false}), 
 
 // Were get requests but had to be changed at the last hour >:(
 router.post('/getuserfolders', passport.authenticate('jwt', {session: false}), getUserFolders);
+router.get('/getuserfolders', passport.authenticate('jwt', {session: false}), getUserFolders);
 
 router.delete('/deletefolder', passport.authenticate('jwt', {session: false}), deleteFolder);
 router.delete('/deleteallfolders', passport.authenticate('jwt', {session: false}), deleteUserFolders);
@@ -35,9 +35,14 @@ router.delete('/deleteallfolders', passport.authenticate('jwt', {session: false}
 router.post('/createnote',passport.authenticate('jwt', {session: false}), createNote);
 
 // Were get requests but had to be changed at the last hour >:(
-router.post('/getfoldernotes',passport.authenticate('jwt', {session: false}), getFolderNotes);
+router.post('/getfoldernotes/:folderId',passport.authenticate('jwt', {session: false}), getFolderNotes);
+router.get('/getfoldernotes/:folderId',passport.authenticate('jwt', {session: false}), getFolderNotes);
+
+
 router.post('/getnofoldernotes',passport.authenticate('jwt', {session: false}), getNoFolderNotes);
 router.get('/getnofoldernotes', passport.authenticate('jwt', {session: false}), getNoFolderNotes);
+
+
 
 router.delete('/deletenoteid',passport.authenticate('jwt', {session: false}), deleteNoteById);
 router.delete('/deletefoldernotes',passport.authenticate('jwt', {session: false}), deleteFolderNotes);
@@ -47,5 +52,10 @@ router.put('/modifynotetitle', passport.authenticate('jwt', {session: false}), m
 router.put('/modifynotecontent', passport.authenticate('jwt', {session: false}), modifyNoteContent);
 router.put('/modifynotefolder', passport.authenticate('jwt', {session: false}), modifyNoteFolder);
 router.put('/modifynotecolor', passport.authenticate('jwt', {session: false}), modifyNoteColor);
+
+
+router.post('/togglefavorite/:noteId', passport.authenticate('jwt', { session: false }), toggleFavoriteNote);
+router.get('/getFavoriteNotes', passport.authenticate('jwt', { session: false }), getFavoriteNotes);
+
 
 export default router;

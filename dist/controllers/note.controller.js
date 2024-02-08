@@ -12,19 +12,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.modifyNoteColor = exports.modifyNoteFolder = exports.modifyNoteContent = exports.modifyNoteTitle = exports.deleteUserNotes = exports.deleteFolderNotes = exports.deleteNoteById = exports.getNoFolderNotes = exports.getFolderNotes = exports.createNote = void 0;
+exports.toggleFavoriteNote = exports.getFavoriteNotes = exports.modifyNoteColor = exports.modifyNoteFolder = exports.modifyNoteContent = exports.modifyNoteTitle = exports.deleteUserNotes = exports.deleteFolderNotes = exports.deleteNoteById = exports.getNoFolderNotes = exports.getFolderNotes = exports.createNote = void 0;
 const note_1 = __importDefault(require("../models/note"));
 const user_1 = __importDefault(require("../models/user"));
 const folder_1 = __importDefault(require("../models/folder"));
 const user_idExtractor_1 = require("./user.idExtractor");
-// CREATE NOTE
-/**
- * req.body must only have:
- * folder ObjectId (OPTIONAL)
- * noteName (OPTIONAL)
- * noteDescription (OPTIONAL)
- * noteColor (OPTIONAL)
- */
 const createNote = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const noteName = req.body.noteName || "Nueva Nota";
@@ -48,12 +40,14 @@ const createNote = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             return res.status(400).json({ msg: "The user is not the owner of the folder" });
         }
     }
+    const priority = req.body.priority || 'low';
     // If req.body.noteFolder is undefined then it won't matter because it is not required.
     const noteData = {
         title: noteName,
         desc: noteDescription,
         noteFolder: req.body.noteFolder,
         color: noteColor,
+        priority,
         noteOwner: userId
     };
     const newNote = new note_1.default(noteData);
@@ -62,17 +56,24 @@ const createNote = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     return res.status(201).json(newNote);
 });
 exports.createNote = createNote;
-// GET NOTES FROM FOLDER
 const getFolderNotes = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    if (!req.body.folderId) {
-        return res.status(400).json({ msg: "No folder ID was passed" });
+    // Usar req.params para obtener el ID de la carpeta de la URL
+    const { folderId } = req.params;
+    if (!folderId) {
+        return res.status(400).json({ msg: "No folder ID was passed in the URL parameters." });
     }
-    const folder = yield folder_1.default.findOne({ _id: req.body.folderId });
-    if (!folder) {
-        return res.status(400).json({ msg: "There's no folder by the sent ID" });
+    try {
+        const folder = yield folder_1.default.findById(folderId);
+        if (!folder) {
+            return res.status(404).json({ msg: "Folder not found." });
+        }
+        const notes = yield note_1.default.find({ noteFolder: folderId });
+        return res.status(200).json(notes);
     }
-    const notes = yield note_1.default.find({ noteFolder: req.body.folderId });
-    return res.status(200).json(notes);
+    catch (error) {
+        console.error(error);
+        return res.status(500).json({ msg: "Server error.", error });
+    }
 });
 exports.getFolderNotes = getFolderNotes;
 // GET NOTES THAT HAVE NO FOLDER
@@ -223,3 +224,43 @@ const modifyNoteColor = (req, res) => __awaiter(void 0, void 0, void 0, function
     }
 });
 exports.modifyNoteColor = modifyNoteColor;
+const getFavoriteNotes = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const userId = (0, user_idExtractor_1.extractId)(req.headers.authorization);
+    if (!userId) {
+        return res.status(401).json({ message: "Usuario no autenticado o token inválido." });
+    }
+    try {
+        const notes = yield note_1.default.find({ noteOwner: userId, isFavorite: true });
+        res.json(notes);
+    }
+    catch (err) {
+        res.status(500).send('Error al obtener notas favoritas');
+    }
+});
+exports.getFavoriteNotes = getFavoriteNotes;
+const toggleFavoriteNote = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _d;
+    const { noteId } = req.params;
+    const authorization = (_d = req.headers) === null || _d === void 0 ? void 0 : _d.authorization;
+    const userId = (0, user_idExtractor_1.extractId)(authorization);
+    if (!userId) {
+        res.status(401).send('Authentication failed');
+        return;
+    }
+    try {
+        const note = yield note_1.default.findOne({ _id: noteId, noteOwner: userId });
+        if (note) {
+            note.isFavorite = !note.isFavorite;
+            yield note.save();
+            res.json(note);
+        }
+        else {
+            res.status(404).json({ message: 'Nota no encontrada o usuario no autorizado.' });
+        }
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error del servidor', error });
+    }
+});
+exports.toggleFavoriteNote = toggleFavoriteNote;

@@ -11,6 +11,7 @@ export interface INote extends Document{
   removeFolder: ()=> Promise<string>;
   changeFolder: (newFolder:string)=> Promise<string>;
   modifyColor: (newColor:string)=> Promise<string>;
+  isFavorite: boolean;
 }
 
 const noteSchema = new Schema({
@@ -33,11 +34,21 @@ const noteSchema = new Schema({
     type: String,
     required: false
   },
+  priority: {
+    type: String,
+    enum: ['high', 'medium', 'low'],
+    default: 'low',
+  },
   noteOwner: {
     type: Schema.Types.ObjectId,
     ref: 'User',
     required: true
-  }
+  },
+  isFavorite: {
+    type: Boolean, 
+    required: true, 
+    default: false, 
+  },
 })
 
 

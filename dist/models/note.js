@@ -30,11 +30,21 @@ const noteSchema = new mongoose_1.Schema({
         type: String,
         required: false
     },
+    priority: {
+        type: String,
+        enum: ['high', 'medium', 'low'],
+        default: 'low',
+    },
     noteOwner: {
         type: mongoose_1.Schema.Types.ObjectId,
         ref: 'User',
         required: true
-    }
+    },
+    isFavorite: {
+        type: Boolean,
+        required: true,
+        default: false,
+    },
 });
 // Methods
 noteSchema.methods.modifyTitle = function (newTitle) {
