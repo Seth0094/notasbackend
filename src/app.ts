@@ -19,7 +19,10 @@ app.set('port', process.env.PORT || 3000);
 
 // middlewares
 app.use(morgan('dev'));
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:8081', // Ajusta según sea necesario
+  credentials: true, // Para permitir el envío de cookies y headers de autenticación
+}));
 app.use(express.urlencoded({extended: false}));
 app.use(express.json());
 app.use(passport.initialize());
