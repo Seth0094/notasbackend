@@ -22,6 +22,7 @@ app.use(morgan('dev'));
 app.use(cors({
   origin: 'http://localhost:8081', // Ajusta según sea necesario
   credentials: true, // Para permitir el envío de cookies y headers de autenticación
+  methods: ['GET', 'POST', 'OPTIONS'], // Métodos permitidos
 }));
 app.use(express.urlencoded({extended: false}));
 app.use(express.json());
