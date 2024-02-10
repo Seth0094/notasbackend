@@ -9,6 +9,11 @@ import specialRoutes from './routes/special.routes';
 // initializations
 const app = express()
 
+const corsOptions = {
+  origin: 'http://localhost:8081', // Asegúrate de que este sea el origen correcto
+  optionsSuccessStatus: 200 // Para navegadores que no soportan 204
+};
+
 //settings
 app.set('port', process.env.PORT || 3000);
 
